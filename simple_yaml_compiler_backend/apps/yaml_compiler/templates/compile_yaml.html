@@ -12,5 +12,12 @@
   {% csrf_token %}
   <input type="submit">
 </form>
+{% if augmented_conf %}
+  <h1>Augmented Site-level config file: </h1>
+  <div>{{ augmented_conf }}</div>
+
+  <h1> Schema file: </h1>
+  <div>{{ schema }}</div>
+{% endif %}
 </body>
 </html>

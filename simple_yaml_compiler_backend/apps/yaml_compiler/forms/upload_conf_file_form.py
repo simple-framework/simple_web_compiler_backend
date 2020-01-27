@@ -2,4 +2,4 @@ from django import forms
 
 
 class UploadSiteConfForm(forms.Form):
-    file = forms.FileField()
+    site_config = forms.FileField()
