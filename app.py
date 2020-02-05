@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 from collections import OrderedDict
 from simple_grid_yaml_compiler import yaml_compiler
 
 app = Flask(__name__)
+CORS(app)
 
 
 def augment_conf_file(config):
@@ -26,14 +28,15 @@ def compile():
             return "No file provided\n"
         try:
             [augmented_conf, schema] = augment_conf_file(request.files['site_conf'])
-            return jsonify({'augmented_conf': augmented_conf, 'schema': schema, 'error': None})
+            return jsonify({'augmented_conf': augmented_conf, 'schema': schema})
         except Exception as ex:
             tempdir = os.path.join(os.getcwd(), '.temp')
-            tempfiles = OrderedDict()
+            response = {}
             for filename in os.listdir(tempdir):
+                response['error'] = ex
                 with open(os.path.join(tempdir, filename), 'r') as f:
-                    tempfiles[filename] = f.read()
-            return jsonify({'tempfiles': tempfiles, 'error': ex})
+                    response[filename] = f.read()
+            return jsonify(response)
 
 
 if __name__ == '__main__':
