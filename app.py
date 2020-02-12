@@ -20,7 +20,9 @@ def augment_conf_file(config):
     with open('.temp/augmented_conf.yaml', 'r') as output_file, open(schema_file_path, 'r') as schema_file:
         return output_file.read(), schema_file.read()
 
-
+@app.route('/', methods=['GET'])
+def health():
+    return "I'm alive."
 @app.route('/compile', methods=['POST'])
 def compile():
     if request.method == 'POST':
@@ -43,4 +45,4 @@ def compile():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80)
+    app.run(debug=True, port=8080)
