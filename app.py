@@ -31,13 +31,13 @@ def compile():
             return jsonify({'augmented_conf': augmented_conf, 'schema': schema})
         except Exception as ex:
             tempdir = os.path.join(os.getcwd(), '.temp')
-            response = {}
+            response = OrderedDict()
+            response['error'] = ex.message
             for filename in os.listdir(tempdir):
-                response['error'] = ex
                 with open(os.path.join(tempdir, filename), 'r') as f:
                     response[filename] = f.read()
             return jsonify(response)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
