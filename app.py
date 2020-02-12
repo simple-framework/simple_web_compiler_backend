@@ -24,19 +24,22 @@ def augment_conf_file(config):
 @app.route('/compile', methods=['POST'])
 def compile():
     if request.method == 'POST':
+        tempdir = os.path.join(os.getcwd(), '.temp')
         if 'site_conf' not in request.files:
             return "No file provided\n"
         try:
             [augmented_conf, schema] = augment_conf_file(request.files['site_conf'])
             return jsonify({'augmented_conf': augmented_conf, 'schema': schema})
         except Exception as ex:
-            tempdir = os.path.join(os.getcwd(), '.temp')
             response = OrderedDict()
             response['error'] = ex.message
             for filename in os.listdir(tempdir):
                 with open(os.path.join(tempdir, filename), 'r') as f:
                     response[filename] = f.read()
             return jsonify(response)
+        finally:
+            for filename in os.listdir(tempdir):
+                os.remove(os.path.join(tempdir, filename))
 
 
 if __name__ == '__main__':
