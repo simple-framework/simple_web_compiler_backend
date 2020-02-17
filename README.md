@@ -1,2 +1,2 @@
-# simple_web_compiler_flask
-Flask implementation of YAML compiler backend for SIMPLE
+# simple_yaml_compiler_backend
+Backend for the SIMPLE YAML Compiler GUI web application.
