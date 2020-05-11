@@ -1,5 +1,3 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 import os
 import pkgutil
 import traceback
@@ -11,6 +9,7 @@ from flask_cors import CORS
 import compilers
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024
 CORS(app)
 
 
@@ -61,7 +60,12 @@ def compile():
             return jsonify({'augmented_conf': augmented_conf, 'schema': schema})
         except Exception as ex:
             response = OrderedDict()
-            response['error'] = ex.message
+
+            request.files['site_conf'].stream.seek(0)
+            response['Input File'] = request.files['site_conf'].stream.read()
+
+            response['error'] = traceback.format_exc()
+
             for filename in os.listdir(tempdir):
                 with open(os.path.join(tempdir, filename), 'r') as f:
                     response[filename] = f.read()
