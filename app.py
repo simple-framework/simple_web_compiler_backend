@@ -1,36 +1,63 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+import pkgutil
+import traceback
 from collections import OrderedDict
-from simple_grid_yaml_compiler import yaml_compiler
+
+from flask import Flask, request, jsonify, Response
+from flask_cors import CORS
+
+import compilers
 
 app = Flask(__name__)
 CORS(app)
 
 
-def augment_conf_file(config):
+def augment_conf_file(compiler, config):
     if not os.path.exists('.temp'):
         os.mkdir('.temp')
 
     schema_file_path = os.path.join(os.getcwd(), '.temp/schema.yaml')
-
     with open('.temp/augmented_conf.yaml', 'w') as output_file:
-        yaml_compiler.execute_compiler(config, output_file, schema_file_path)
+        compiler.execute_compiler(config, output_file, schema_file_path)
 
     with open('.temp/augmented_conf.yaml', 'r') as output_file, open(schema_file_path, 'r') as schema_file:
         return output_file.read(), schema_file.read()
 
+
 @app.route('/', methods=['GET'])
 def health():
     return "I'm alive."
+
+
+@app.route('/versions', methods=['GET'])
+def versions():
+    v = []
+    for importer, modname, ispkg in pkgutil.iter_modules(compilers.__path__):
+        if ispkg:
+            v.append(modname.replace('_', '.'))
+
+    return jsonify(v)
+
+
 @app.route('/compile', methods=['POST'])
 def compile():
     if request.method == 'POST':
         tempdir = os.path.join(os.getcwd(), '.temp')
+        if 'version' not in request.form:
+            return Response('No version provided\n', status=400)
+        else:
+            pkg_version_name = request.form['version'].replace('.', '_')
+            compiler = __import__('compilers.{}.simple_grid_yaml_compiler.yaml_compiler'.format(pkg_version_name),
+                                  fromlist="yaml_compiler")
+
+            print 'Imported', compiler
+
         if 'site_conf' not in request.files:
-            return "No file provided\n"
+            return Response('No file provided\n', status=400)
         try:
-            [augmented_conf, schema] = augment_conf_file(request.files['site_conf'])
+            [augmented_conf, schema] = augment_conf_file(compiler, request.files['site_conf'])
             return jsonify({'augmented_conf': augmented_conf, 'schema': schema})
         except Exception as ex:
             response = OrderedDict()
