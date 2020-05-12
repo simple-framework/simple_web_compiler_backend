@@ -4,6 +4,8 @@ Backend for the SIMPLE YAML Compiler GUI web application.
 Frontend repository can be found [here](https://github.com/simple-framework/simple_web_compiler_frontend).
 
 ### How to deploy to OpenShift
+ 0) Download the OKD client [oc](https://www.okd.io/download.html).
+
  1) Go to https://openshift.cern.ch/console/catalog
  
  2) Select Python from the list of options
@@ -14,7 +16,9 @@ Frontend repository can be found [here](https://github.com/simple-framework/simp
  
  ![screenshot from OpenShift](./misc/README_project.png)
  
- 4) (Optional) Add health-check to the backend deployment.
+ 4) Create route and expose it to the internet using `oc annotate route <SERVICE NAME HERE> router.cern.ch/network-visibility=Internet`
+ 
+ 5) (Optional) Add health-check to the backend deployment on `/health` endpoint.
 
  
 ### Available endpoints
