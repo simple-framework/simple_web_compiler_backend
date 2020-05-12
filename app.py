@@ -25,7 +25,7 @@ def augment_conf_file(compiler, config):
         return output_file.read(), schema_file.read()
 
 
-@app.route('/', methods=['GET'])
+@app.route('/health', methods=['GET'])
 def health():
     return "I'm alive."
 
